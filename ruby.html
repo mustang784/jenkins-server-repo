@@ -1,35 +1,41 @@
-<html>
-<head>
-<title>div tag vs span tag</title>
-<style>
+sudo apt-get update
+sudo apt upgrade
+sudo ufw disable
+swapoff -a
+sudo sed -i '/swap/d' /etc/fstab
 
-div
-{
-background-color:cyan;
-}
-span
-{
-background-color:pink;
-}
+#
+cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+overlay
+br_netfilter
+EOF
 
-</style>
-</head>
-<body>
+sudo modprobe overlay
+sudo modprobe br_netfilter
 
-<h3>Div tag take always new or fresh line </h3>
+cat <<EOF | sudo tee /etc/sysctl.d/99-kubernetes-cri.conf
+net.bridge.bridge-nf-call-iptables = 1
+net.ipv4.ip_forward = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+EOF
 
-<div> RUBY ADHANA</div><div> RUBY ADHANA</div><div> RUBY ADHANA</div><div> RUBY ADHANA</div>
-<div> RUBY ADHANA</div><div> RUBY ADHANA</div>
+sudo sysctl --system
+lsmod | grep br_netfilter
 
-<h3>Span tag is not take new line or fresh line</h3>
-<span>RUBY ADHANA</span><span>RUBY ADHANA</span><span>RUBY ADHANA</span><span>RUBY ADHANA</span>
-<span>RUBY ADHANA</span><span>RUBY ADHANA</span><span>RUBY ADHANA</span>
+#
+cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-iptables  = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward                 = 1
+EOF
+sudo systemctl --system
+  
+#
+sudo apt install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
 
-<h2>span tag is not take new line if we are put in &nbsp; &nbsp; &nbsp; (BR) &nbsp; &nbsp; &nbsp; tag in then take a fresh line ---like this way</h2>
-<span>RUBY ADHANA</span></br><span>RUBY ADHANA</span></br><span>RUBY ADHANA</span></br><span>RUBY ADHANA</span></br>
-
-
-<h1> &copy;ruby</h1>
-
-</body>
-</html>
+#
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+apt update
+apt install docker.io  
+  
